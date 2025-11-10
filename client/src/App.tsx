@@ -50,6 +50,20 @@ const App = () => {
         });
       });
 
+      //Sort each category by completion time (ascending)
+      Object.keys(categoryMap).forEach((cat) => {
+        categoryMap[cat].sort((a, b) => {
+          const parseTime = (time: string): number => {
+            const hourMatch = time.match(/(\d+(?:\.\d+)?)\s*hour/);
+            const minMatch = time.match(/(\d+(?:\.\d+)?)\s*minute/);
+            const hours = hourMatch ? parseFloat(hourMatch[1]) : 0;
+            const minutes = minMatch ? parseFloat(minMatch[1]) : 0;
+            return hours * 60 + minutes;
+          };
+          return parseTime(a.completionTime) - parseTime(b.completionTime);
+        });
+      });
+
       setCourses(data);
       console.log(data);
 
