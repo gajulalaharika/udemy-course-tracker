@@ -14,16 +14,27 @@ const courseRoutes = require("./routes/Courses");
 const fetchUdemyCourses = require("./fetchUdemyCourses");
 
 // MongoDB connect
-mongoose
-  .connect(process.env.MONGO_URI, {
-    // .connect("mongodb://localhost:27017/udemy_courses", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+const connectWithRetry = async () => {
+  try {
+    console.log("Connecting to MongoDB...");
+    await mongoose.connect(process.env.MONGO_URI, {
+      dbName: "udemy_courses",
+    });
+    console.log("✅ MongoDB connected successfully");
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err.message);
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+connectWithRetry();
 
 // Routes
+app.get("/", (req, res) => {
+  res.send("✅ Udemy Tracker backend live and connected!");
+});
+
+
 app.use("/api/courses", courseRoutes);
 
 app.get("/api/courses", async (req, res) => {
